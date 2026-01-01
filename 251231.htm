@@ -88,6 +88,8 @@ h2 {
 
 <script>
 // GPX読み込み
+var map = L.map("map").setView([34.6, 135.5], 12);
+
 new L.GPX("./251231_2.gpx", {
   async: true,
   polyline_options: {
