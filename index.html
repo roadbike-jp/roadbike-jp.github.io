@@ -3,9 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <title>My Map</title>
+
+  <!-- LeafletのCSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+  <style>
+    #map {
+      height: 100vh; /* 画面いっぱいに地図を表示 */
+      width: 100%;
+    }
+  </style>
 </head>
 <body>
-  <h1>地図＋写真サイト（準備中）</h1>
-  <p>ここに地図が表示されます。</p>
+
+  <div id="map"></div>
+
+  <!-- LeafletのJS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <script>
+    // 地図を表示（しまなみ海道あたりを中心に設定）
+    const map = L.map('map').setView([34.3, 133.0], 10);
+
+    // タイル（地図画像）を読み込む
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+  </script>
+
 </body>
 </html>
