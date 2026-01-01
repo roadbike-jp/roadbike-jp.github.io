@@ -18,7 +18,9 @@
   overflow: hidden;
   border: 3px solid white;
   box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-  transition: transform 0.2s;
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
 }
 
 .circle-icon:hover {
@@ -26,10 +28,13 @@
 }
 
     /* ポップアップ内の写真 */
-    img.photo {
-      width: 600px;
-      border-radius: 8px;
-    }
+img.photo {
+  width: 400px;        /* 好きな大きさに調整 */
+  border-radius: 8px;  /* 角丸 */
+  border: none;        /* ← 白枠を完全に消す */
+  object-fit: contain; /* ← はみ出し防止 */
+  max-width: 100%;     /* スマホ対応 */
+}
   </style>
 </head>
 <body>
