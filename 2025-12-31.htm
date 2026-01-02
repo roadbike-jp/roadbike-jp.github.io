@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>{{TITLE}}3</title>
+<title>{{TITLE}}4}4title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <!-- Leaflet -->
@@ -130,9 +130,10 @@ var gpx = new L.GPX("2025-12-31.gpx", {
     }
   }
 
-  // 座標
-  var startpt = e.target.get_starting_point();
-  var endpt = e.target.get_end_point();
+  // 座標（get_starting_point は使えない）
+  var latlngs = e.target.get_latlngs();
+  var startpt = latlngs[0];
+  var endpt   = latlngs[latlngs.length - 1];
 
   // 配列数
   var elecount = e.target.get_elevation_data().length;
