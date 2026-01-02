@@ -2,13 +2,16 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>{{TITLE}}5</title>
+<title>{{TITLE}}6</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <!-- Leaflet -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/2.1.2/gpx.min.js"></script>
+
+<!-- Chart.js（標高グラフ用） -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 body { font-family: sans-serif; margin: 0; padding: 0; line-height: 1.7; }
@@ -49,10 +52,15 @@ h2 { border-left: 5px solid #0078ff; padding-left: 10px; }
     <tr><td>終了時刻</td><td><span id="end">-</span></td></tr>
     <tr><td>総時間</td><td><span id="totaltime">-</span></td></tr>
     <tr><td>移動時間</td><td><span id="movingtime">-</span></td></tr>
-    <tr><td>平均速度（簡易計算）</td><td><span id="avgspeed">-</span> km/h</td></tr>
+    <tr><td>平均速度</td><td><span id="avgspeed">-</span> km/h</td></tr>
     <tr><td>標高データ数</td><td><span id="elecount">-</span></td></tr>
     <tr><td>速度データ数</td><td><span id="speedcount">-</span></td></tr>
   </table>
+</div>
+
+<div class="section">
+  <h2>標高グラフ</h2>
+  <canvas id="elevationChart" height="120"></canvas>
 </div>
 
 <div class="section">
@@ -120,8 +128,9 @@ var gpx = new L.GPX("2025-12-31.gpx", {
     avg = (sum / speeds.length) * 3.6;
   }
 
-  // 配列数
-  var elecount = e.target.get_elevation_data().length;
+  // 標高データ
+  var eleData = e.target.get_elevation_data();
+  var elecount = eleData.length;
   var speedcount = speeds.length;
 
   // HTML 反映
@@ -143,6 +152,33 @@ var gpx = new L.GPX("2025-12-31.gpx", {
 
   document.getElementById("elecount").innerText = elecount;
   document.getElementById("speedcount").innerText = speedcount;
+
+  // ★ 標高グラフを描画 ★
+  var ctx = document.getElementById("elevationChart").getContext("2d");
+
+  new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: eleData.map((v, i) => i), // X軸：ポイント番号
+      datasets: [{
+        label: "標高 (m)",
+        data: eleData,
+        borderColor: "#0078ff",
+        backgroundColor: "rgba(0,120,255,0.2)",
+        borderWidth: 2,
+        pointRadius: 0,
+        tension: 0.2
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        x: { display: false },
+        y: { beginAtZero: false }
+      }
+    }
+  });
+
 })
 .addTo(map);
 </script>
