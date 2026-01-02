@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>{{TITLE}}12</title>
+<title>{{TITLE}}13</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <!-- Leaflet -->
@@ -106,7 +106,7 @@ var gpx = new L.GPX("2025-12-31.gpx", {
   polyline_options: { color: "red", weight: 4, opacity: 0.8 }
 })
 
-// ★ loaded：統計値だけ読む（安全）
+// loaded：統計値だけ読む
 .on("loaded", function(e) {
 
   var dist = (e.target.get_distance() / 1000).toFixed(2);
@@ -145,6 +145,7 @@ var gpx = new L.GPX("2025-12-31.gpx", {
   document.getElementById("speedcount").innerText = speeds.length;
 })
 
+// addline：trkpt & グラフ
 .on("addline", function(e) {
 
   // trkpt（ルート座標）
@@ -163,8 +164,7 @@ var gpx = new L.GPX("2025-12-31.gpx", {
     hoverMarker.setLatLng([pts[i].lat, pts[i].lon]);
   }
 
-  // ★ 標高データは addline の瞬間ではまだ空のことがある
-  // → 次の tick で確実に取得できる
+  // 次の tick で標高データ取得＆グラフ描画
   setTimeout(() => {
 
     var eleData = e.target.get_elevation_data();
@@ -204,12 +204,10 @@ var gpx = new L.GPX("2025-12-31.gpx", {
       }
     });
 
-    // fitBounds はここで OK
     map.fitBounds(e.target.getBounds());
 
-  }, 0); // ★ これが最重要
+  }, 0);
 
-})
 })
 
 .addTo(map);
