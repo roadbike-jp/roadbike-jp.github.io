@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>{{TITLE}}12</title>
+<title>{{TITLE}}13</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <!-- Leaflet -->
@@ -104,6 +104,14 @@ new L.GPX("2025-12-31.gpx", {
   }
 }).on("loaded", function(e) {
   map.fitBounds(e.target.getBounds());
+  // --- ここで距離・標高などの情報を取得 ---
+  var distance = (e.target.get_distance() / 1000).toFixed(1); // km
+  var elevation = Math.round(e.target.get_elevation_gain());  // m
+
+  // --- HTML に反映 ---
+  document.body.innerHTML = document.body.innerHTML
+    .replace("{{DISTANCE}}", distance)
+    .replace("{{ELEVATION}}", elevation);
 }).addTo(map);
 </script>
 
