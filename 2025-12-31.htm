@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>{{TITLE}}13</title>
+<title>{{TITLE}}14</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <!-- Leaflet -->
@@ -64,49 +64,28 @@ h2 { border-left: 5px solid #0078ff; padding-left: 10px; }
   <canvas id="elevationChart"></canvas>
 </div>
 
-<div class="section">
-  <h2>ルート概要</h2>
-  <p>{{DESCRIPTION}}</p>
-</div>
-
-<div class="section">
-  <h2>写真ギャラリー</h2>
-  <div class="gallery">
-    {{GALLERY}}
-  </div>
-</div>
-
-<div class="section">
-  <h2>補給ポイント</h2>
-  <ul>{{FOOD}}</ul>
-</div>
-
-<div class="section">
-  <h2>おすすめ装備</h2>
-  <ul>
-    <li><a href="{{AFFILIATE1}}">ライト（Amazon）</a></li>
-    <li><a href="{{AFFILIATE2}}">補給食（Amazon）</a></li>
-    <li><a href="{{AFFILIATE3}}">タイヤ（Amazon）</a></li>
-  </ul>
-</div>
-
 <script>
-// ① map を作成
+// ------------------------------
+// 1. 地図作成
+// ------------------------------
 var map = L.map("map").setView([34.6, 135.5], 12);
 
-// ② タイルレイヤー
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 19,
   attribution: "© OpenStreetMap contributors"
 }).addTo(map);
 
-// ③ GPX 読み込み
+// ------------------------------
+// 2. GPX 読み込み
+// ------------------------------
 var gpx = new L.GPX("2025-12-31.gpx", {
   async: true,
   polyline_options: { color: "red", weight: 4, opacity: 0.8 }
 })
 
-// loaded：統計値だけ読む
+// ------------------------------
+// 3. 統計値（loaded）
+// ------------------------------
 .on("loaded", function(e) {
 
   var dist = (e.target.get_distance() / 1000).toFixed(2);
@@ -145,31 +124,42 @@ var gpx = new L.GPX("2025-12-31.gpx", {
   document.getElementById("speedcount").innerText = speeds.length;
 })
 
-// addline：trkpt & グラフ
+// ------------------------------
+// 4. trkpt & グラフ（addline）
+// ------------------------------
 .on("addline", function(e) {
 
-  // trkpt（ルート座標）
-  var pts = e.target._info.gpx.trk[0].trkseg[0].trkpt;
-
-  // マーカー
-  var hoverMarker = L.circleMarker([0,0], {
-    radius: 6,
-    color: "red",
-    fillColor: "yellow",
-    fillOpacity: 1
-  }).addTo(map);
-
-  function moveMarkerToPoint(i) {
-    if (i < 0 || i >= pts.length) return;
-    hoverMarker.setLatLng([pts[i].lat, pts[i].lon]);
+  // ★ _info.gpx が完成するまで待つ
+  function waitForInfo(callback) {
+    const timer = setInterval(() => {
+      if (e.target._info && e.target._info.gpx && e.target._info.gpx.trk) {
+        clearInterval(timer);
+        callback(e.target._info.gpx.trk);
+      }
+    }, 50);
   }
 
-  // 次の tick で標高データ取得＆グラフ描画
-  setTimeout(() => {
+  waitForInfo(function(trk) {
 
+    var pts = trk[0].trkseg[0].trkpt;
+
+    // マーカー
+    var hoverMarker = L.circleMarker([0,0], {
+      radius: 6,
+      color: "red",
+      fillColor: "yellow",
+      fillOpacity: 1
+    }).addTo(map);
+
+    function moveMarkerToPoint(i) {
+      if (i < 0 || i >= pts.length) return;
+      hoverMarker.setLatLng([pts[i].lat, pts[i].lon]);
+    }
+
+    // 標高データ
     var eleData = e.target.get_elevation_data();
-    console.log("eleData length:", eleData.length);
 
+    // グラフ描画
     var ctx = document.getElementById("elevationChart").getContext("2d");
 
     new Chart(ctx, {
@@ -204,9 +194,10 @@ var gpx = new L.GPX("2025-12-31.gpx", {
       }
     });
 
+    // 経路の範囲に合わせる
     map.fitBounds(e.target.getBounds());
 
-  }, 0);
+  });
 
 })
 
