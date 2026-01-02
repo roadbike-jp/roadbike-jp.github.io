@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>{{TITLE}}2</title>
+<title>{{TITLE}}3</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <!-- Leaflet -->
@@ -11,47 +11,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/2.1.2/gpx.min.js"></script>
 
 <style>
-body {
-  font-family: sans-serif;
-  margin: 0;
-  padding: 0;
-  line-height: 1.7;
-}
-header {
-  background: #000;
-  color: #fff;
-  padding: 20px;
-  text-align: center;
-}
-#map {
-  width: 100%;
-  height: 350px;
-}
-.section {
-  padding: 20px;
-}
-h2 {
-  border-left: 5px solid #0078ff;
-  padding-left: 10px;
-}
+body { font-family: sans-serif; margin: 0; padding: 0; line-height: 1.7; }
+header { background: #000; color: #fff; padding: 20px; text-align: center; }
+#map { width: 100%; height: 350px; }
+.section { padding: 20px; }
+h2 { border-left: 5px solid #0078ff; padding-left: 10px; }
 .gallery {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 10px;
-  padding: 10px;
+  gap: 10px; padding: 10px;
 }
-.gallery img {
-  width: 100%;
-  border-radius: 6px;
-}
-.info-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-.info-table td {
-  padding: 6px 4px;
-  border-bottom: 1px solid #ddd;
-}
+.gallery img { width: 100%; border-radius: 6px; }
+.info-table { width: 100%; border-collapse: collapse; }
+.info-table td { padding: 6px 4px; border-bottom: 1px solid #ddd; }
 </style>
 </head>
 
@@ -100,9 +72,7 @@ h2 {
 
 <div class="section">
   <h2>補給ポイント</h2>
-  <ul>
-    {{FOOD}}
-  </ul>
+  <ul>{{FOOD}}</ul>
 </div>
 
 <div class="section">
@@ -127,39 +97,46 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 // ③ GPX 読み込み
 var gpx = new L.GPX("2025-12-31.gpx", {
   async: true,
-  polyline_options: {
-    color: "red",
-    weight: 4,
-    opacity: 0.8
-  }
+  polyline_options: { color: "red", weight: 4, opacity: 0.8 }
 })
 .on("loaded", function(e) {
   map.fitBounds(e.target.getBounds());
 
-  // 基本情報
+  // 基本データ
   var dist = (e.target.get_distance() / 1000).toFixed(1);
   var gain = Math.round(e.target.get_elevation_gain());
   var loss = Math.round(e.target.get_elevation_loss());
   var maxele = Math.round(e.target.get_elevation_max());
   var minele = Math.round(e.target.get_elevation_min());
 
-  // 時間系
+  // 時間
   var start = e.target.get_start_time();
   var end = e.target.get_end_time();
   var total = e.target.get_total_time();
   var moving = e.target.get_moving_time();
 
-  // 速度
-  var avgspeed = (e.target.get_average_speed() * 3.6).toFixed(1);
-  var movingspeed = (e.target.get_moving_speed() * 3.6).toFixed(1);
+  // 速度データ（配列）
+  var speeds = e.target.get_speed_data();
+  var avg = 0, movingAvg = 0;
+
+  if (speeds.length > 0) {
+    var sum = speeds.reduce((a, b) => a + b, 0);
+    avg = (sum / speeds.length) * 3.6;
+
+    var movingSpeeds = speeds.filter(v => v > 0.5);
+    if (movingSpeeds.length > 0) {
+      var sum2 = movingSpeeds.reduce((a, b) => a + b, 0);
+      movingAvg = (sum2 / movingSpeeds.length) * 3.6;
+    }
+  }
 
   // 座標
   var startpt = e.target.get_starting_point();
   var endpt = e.target.get_end_point();
 
-  // 配列データ
+  // 配列数
   var elecount = e.target.get_elevation_data().length;
-  var speedcount = e.target.get_speed_data().length;
+  var speedcount = speeds.length;
 
   // HTML 反映
   document.getElementById("dist").innerText = dist;
@@ -176,8 +153,8 @@ var gpx = new L.GPX("2025-12-31.gpx", {
   document.getElementById("totaltime").innerText = (total/3600).toFixed(1) + " h";
   document.getElementById("movingtime").innerText = (moving/3600).toFixed(1) + " h";
 
-  document.getElementById("avgspeed").innerText = avgspeed;
-  document.getElementById("movingspeed").innerText = movingspeed;
+  document.getElementById("avgspeed").innerText = avg.toFixed(1);
+  document.getElementById("movingspeed").innerText = movingAvg.toFixed(1);
 
   document.getElementById("startpt").innerText = startpt.lat + ", " + startpt.lng;
   document.getElementById("endpt").innerText = endpt.lat + ", " + endpt.lng;
