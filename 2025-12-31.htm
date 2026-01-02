@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>{{TITLE}}}4</title>
+<title>{{TITLE}}5</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
 <!-- Leaflet -->
@@ -49,10 +49,7 @@ h2 { border-left: 5px solid #0078ff; padding-left: 10px; }
     <tr><td>終了時刻</td><td><span id="end">-</span></td></tr>
     <tr><td>総時間</td><td><span id="totaltime">-</span></td></tr>
     <tr><td>移動時間</td><td><span id="movingtime">-</span></td></tr>
-    <tr><td>平均速度</td><td><span id="avgspeed">-</span> km/h</td></tr>
-    <tr><td>移動平均速度</td><td><span id="movingspeed">-</span> km/h</td></tr>
-    <tr><td>開始地点</td><td><span id="startpt">-</span></td></tr>
-    <tr><td>終了地点</td><td><span id="endpt">-</span></td></tr>
+    <tr><td>平均速度（簡易計算）</td><td><span id="avgspeed">-</span> km/h</td></tr>
     <tr><td>標高データ数</td><td><span id="elecount">-</span></td></tr>
     <tr><td>速度データ数</td><td><span id="speedcount">-</span></td></tr>
   </table>
@@ -103,7 +100,7 @@ var gpx = new L.GPX("2025-12-31.gpx", {
   map.fitBounds(e.target.getBounds());
 
   // 基本データ
-  var dist = (e.target.get_distance() / 1000).toFixed(1);
+  var dist = (e.target.get_distance() / 1000).toFixed(2);
   var gain = Math.round(e.target.get_elevation_gain());
   var loss = Math.round(e.target.get_elevation_loss());
   var maxele = Math.round(e.target.get_elevation_max());
@@ -115,25 +112,13 @@ var gpx = new L.GPX("2025-12-31.gpx", {
   var total = e.target.get_total_time();
   var moving = e.target.get_moving_time();
 
-  // 速度データ（配列）
+  // 速度（配列から平均を自前計算）
   var speeds = e.target.get_speed_data();
-  var avg = 0, movingAvg = 0;
-
+  var avg = 0;
   if (speeds.length > 0) {
     var sum = speeds.reduce((a, b) => a + b, 0);
     avg = (sum / speeds.length) * 3.6;
-
-    var movingSpeeds = speeds.filter(v => v > 0.5);
-    if (movingSpeeds.length > 0) {
-      var sum2 = movingSpeeds.reduce((a, b) => a + b, 0);
-      movingAvg = (sum2 / movingSpeeds.length) * 3.6;
-    }
   }
-
-  // 座標（get_starting_point は使えない）
-  var latlngs = e.target.get_latlngs();
-  var startpt = latlngs[0];
-  var endpt   = latlngs[latlngs.length - 1];
 
   // 配列数
   var elecount = e.target.get_elevation_data().length;
@@ -155,10 +140,6 @@ var gpx = new L.GPX("2025-12-31.gpx", {
   document.getElementById("movingtime").innerText = (moving/3600).toFixed(1) + " h";
 
   document.getElementById("avgspeed").innerText = avg.toFixed(1);
-  document.getElementById("movingspeed").innerText = movingAvg.toFixed(1);
-
-  document.getElementById("startpt").innerText = startpt.lat + ", " + startpt.lng;
-  document.getElementById("endpt").innerText = endpt.lat + ", " + endpt.lng;
 
   document.getElementById("elecount").innerText = elecount;
   document.getElementById("speedcount").innerText = speedcount;
