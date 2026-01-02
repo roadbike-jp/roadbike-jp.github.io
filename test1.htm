@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>GPX + Elevation Link2</title>
+<title>GPX + Elevation Link3</title>
 <style>
   body { margin: 0; }
   #map { height: 50vh; }
@@ -42,9 +42,10 @@ const gpx = new L.GPX("2025-12-31.gpx", {
 }).on("loaded", function(e) {
   map.fitBounds(e.target.getBounds());
 
-  const points = e.target.get_latlngs();
-  const elevations = points.map(p => p.meta.ele);
-  const labels = points.map((_, i) => i);
+  // ★ 修正：polyline の latlng を取得
+  const latlngs = e.target.getLayers()[0].getLatLngs();
+  const elevations = latlngs.map(p => p.meta.ele);
+  const labels = latlngs.map((_, i) => i);
 
   // ------------------------------
   // 高度グラフ描画
