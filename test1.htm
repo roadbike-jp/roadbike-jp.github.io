@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>GPX + Elevation Link</title>
+<title>GPX + Elevation Link1</title>
 <style>
   body { margin: 0; }
   #map { height: 50vh; }
@@ -36,7 +36,7 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 // ------------------------------
 // GPX 読み込み
 // ------------------------------
-const gpx = new L.GPX("sample.gpx", {
+const gpx = new L.GPX("2025-12-31.gpx", {
   async: true,
   marker_options: { startIconUrl: null, endIconUrl: null }
 }).on("loaded", function(e) {
